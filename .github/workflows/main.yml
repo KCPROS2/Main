@@ -1,0 +1,45 @@
+name: Build TCC for Android ARMv7
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout source
+      uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y git wget unzip make clang
+
+    - name: Download Android NDK
+      run: |
+        wget https://dl.google.com/android/repository/android-ndk-r26d-linux.zip
+        unzip android-ndk-r26d-linux.zip
+        mv android-ndk-r26d $HOME/ndk
+
+    - name: Clone TinyCC
+      run: |
+        git clone git://repo.or.cz/tinycc.git
+        cd tinycc
+        git checkout mob
+
+    - name: Build TCC for ARMv7
+      run: |
+        export NDK=$HOME/ndk
+        export PATH=$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
+        export CC=armv7a-linux-androideabi21-clang
+
+        cd tinycc
+        ./configure --cpu=arm --target=arm-linux-android
+        make
+
+    - name: Upload built binary
+      uses: actions/upload-artifact@v3
+      with:
+        name: tcc-armv7
+        path: tinycc/tcc
