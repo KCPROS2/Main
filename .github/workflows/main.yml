@@ -37,9 +37,10 @@ jobs:
         cd tinycc
         ./configure --cpu=arm --target=arm-linux-android
         make
+        tar -czf tcc-armv7.tar.gz tcc
 
     - name: Upload built binary
-      uses: actions/upload-artifact@v3.1.3
+      uses: actions/upload-artifact@v4.4.3
       with:
         name: tcc-armv7
-        path: tinycc/tcc
+        path: tinycc/tcc-armv7.tar.gz
